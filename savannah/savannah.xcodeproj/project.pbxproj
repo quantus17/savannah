@@ -7,13 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D023214D2C8DF1F700A2DA5C /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = D023214C2C8DF1F700A2DA5C /* Auth */; };
+		D023214F2C8DF1F700A2DA5C /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = D023214E2C8DF1F700A2DA5C /* Supabase */; };
+		D02321512C8DF28B00A2DA5C /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02321502C8DF28B00A2DA5C /* AuthView.swift */; };
+		D02737292C8E1B5E00B6F4B1 /* HomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02737282C8E1B5E00B6F4B1 /* HomePage.swift */; };
+		D027372B2C8E20CF00B6F4B1 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027372A2C8E20CF00B6F4B1 /* Config.swift */; };
+		D02737312C8F13A900B6F4B1 /* SafeAreaInsetsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02737302C8F13A900B6F4B1 /* SafeAreaInsetsKey.swift */; };
+		D027A5AB2C920ED3005E87BB /* AgentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027A5AA2C920ED3005E87BB /* AgentView.swift */; };
+		D027A5AD2C9228BD005E87BB /* ThreadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027A5AC2C9228BD005E87BB /* ThreadsView.swift */; };
+		D027BFE72C8F5EB800AA4DFB /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027BFE62C8F5EB800AA4DFB /* DiscoverView.swift */; };
+		D027BFE92C8F5EC600AA4DFB /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027BFE82C8F5EC600AA4DFB /* AccountView.swift */; };
+		D0879FDF2C91B1DC008B9AFD /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0879FDE2C91B1DC008B9AFD /* SupabaseManager.swift */; };
 		D0A707812C8C7181007E9856 /* savannahApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A707802C8C7181007E9856 /* savannahApp.swift */; };
-		D0A707832C8C7181007E9856 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A707822C8C7181007E9856 /* ContentView.swift */; };
 		D0A707852C8C7182007E9856 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0A707842C8C7182007E9856 /* Assets.xcassets */; };
 		D0A707882C8C7182007E9856 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0A707872C8C7182007E9856 /* Preview Assets.xcassets */; };
 		D0A707922C8C7182007E9856 /* savannahTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A707912C8C7182007E9856 /* savannahTests.swift */; };
 		D0A7079C2C8C7182007E9856 /* savannahUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A7079B2C8C7182007E9856 /* savannahUITests.swift */; };
 		D0A7079E2C8C7182007E9856 /* savannahUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A7079D2C8C7182007E9856 /* savannahUITestsLaunchTests.swift */; };
+		D0E66D102C8C89A6001A1517 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E66D0F2C8C89A6001A1517 /* Theme.swift */; };
+		D0E66D122C8C92CE001A1517 /* BottomMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E66D112C8C92CE001A1517 /* BottomMenuView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,9 +46,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D02321502C8DF28B00A2DA5C /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		D02737282C8E1B5E00B6F4B1 /* HomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePage.swift; sourceTree = "<group>"; };
+		D027372A2C8E20CF00B6F4B1 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		D027372C2C8EE61400B6F4B1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D027372D2C8EEB0C00B6F4B1 /* savannah.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = savannah.entitlements; sourceTree = "<group>"; };
+		D02737302C8F13A900B6F4B1 /* SafeAreaInsetsKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeAreaInsetsKey.swift; sourceTree = "<group>"; };
+		D027A5AA2C920ED3005E87BB /* AgentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentView.swift; sourceTree = "<group>"; };
+		D027A5AC2C9228BD005E87BB /* ThreadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadsView.swift; sourceTree = "<group>"; };
+		D027BFE62C8F5EB800AA4DFB /* DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
+		D027BFE82C8F5EC600AA4DFB /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
+		D0879FDE2C91B1DC008B9AFD /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		D0A7077D2C8C7181007E9856 /* savannah.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = savannah.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0A707802C8C7181007E9856 /* savannahApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = savannahApp.swift; sourceTree = "<group>"; };
-		D0A707822C8C7181007E9856 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D0A707842C8C7182007E9856 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D0A707872C8C7182007E9856 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D0A7078D2C8C7182007E9856 /* savannahTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = savannahTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,6 +66,8 @@
 		D0A707972C8C7182007E9856 /* savannahUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = savannahUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0A7079B2C8C7182007E9856 /* savannahUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = savannahUITests.swift; sourceTree = "<group>"; };
 		D0A7079D2C8C7182007E9856 /* savannahUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = savannahUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		D0E66D0F2C8C89A6001A1517 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		D0E66D112C8C92CE001A1517 /* BottomMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomMenuView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +75,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D023214F2C8DF1F700A2DA5C /* Supabase in Frameworks */,
+				D023214D2C8DF1F700A2DA5C /* Auth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +97,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D0440E552C8DE92100BC592E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D0A707742C8C7181007E9856 = {
 			isa = PBXGroup;
 			children = (
@@ -78,6 +111,7 @@
 				D0A707902C8C7182007E9856 /* savannahTests */,
 				D0A7079A2C8C7182007E9856 /* savannahUITests */,
 				D0A7077E2C8C7181007E9856 /* Products */,
+				D0440E552C8DE92100BC592E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -94,9 +128,21 @@
 		D0A7077F2C8C7181007E9856 /* savannah */ = {
 			isa = PBXGroup;
 			children = (
+				D027372D2C8EEB0C00B6F4B1 /* savannah.entitlements */,
+				D027372C2C8EE61400B6F4B1 /* Info.plist */,
 				D0A707802C8C7181007E9856 /* savannahApp.swift */,
-				D0A707822C8C7181007E9856 /* ContentView.swift */,
+				D0E66D0F2C8C89A6001A1517 /* Theme.swift */,
+				D0E66D112C8C92CE001A1517 /* BottomMenuView.swift */,
+				D02321502C8DF28B00A2DA5C /* AuthView.swift */,
+				D02737282C8E1B5E00B6F4B1 /* HomePage.swift */,
 				D0A707842C8C7182007E9856 /* Assets.xcassets */,
+				D027372A2C8E20CF00B6F4B1 /* Config.swift */,
+				D02737302C8F13A900B6F4B1 /* SafeAreaInsetsKey.swift */,
+				D027BFE62C8F5EB800AA4DFB /* DiscoverView.swift */,
+				D0879FDE2C91B1DC008B9AFD /* SupabaseManager.swift */,
+				D027A5AA2C920ED3005E87BB /* AgentView.swift */,
+				D027BFE82C8F5EC600AA4DFB /* AccountView.swift */,
+				D027A5AC2C9228BD005E87BB /* ThreadsView.swift */,
 				D0A707862C8C7182007E9856 /* Preview Content */,
 			);
 			path = savannah;
@@ -143,6 +189,10 @@
 			dependencies = (
 			);
 			name = savannah;
+			packageProductDependencies = (
+				D023214C2C8DF1F700A2DA5C /* Auth */,
+				D023214E2C8DF1F700A2DA5C /* Supabase */,
+			);
 			productName = savannah;
 			productReference = D0A7077D2C8C7181007E9856 /* savannah.app */;
 			productType = "com.apple.product-type.application";
@@ -215,6 +265,9 @@
 				Base,
 			);
 			mainGroup = D0A707742C8C7181007E9856;
+			packageReferences = (
+				D023214B2C8DF1F700A2DA5C /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			productRefGroup = D0A7077E2C8C7181007E9856 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -257,8 +310,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0A707832C8C7181007E9856 /* ContentView.swift in Sources */,
+				D0E66D122C8C92CE001A1517 /* BottomMenuView.swift in Sources */,
+				D02737312C8F13A900B6F4B1 /* SafeAreaInsetsKey.swift in Sources */,
+				D02737292C8E1B5E00B6F4B1 /* HomePage.swift in Sources */,
+				D0879FDF2C91B1DC008B9AFD /* SupabaseManager.swift in Sources */,
+				D027BFE92C8F5EC600AA4DFB /* AccountView.swift in Sources */,
+				D02321512C8DF28B00A2DA5C /* AuthView.swift in Sources */,
+				D027A5AB2C920ED3005E87BB /* AgentView.swift in Sources */,
+				D027372B2C8E20CF00B6F4B1 /* Config.swift in Sources */,
+				D0E66D102C8C89A6001A1517 /* Theme.swift in Sources */,
+				D027BFE72C8F5EB800AA4DFB /* DiscoverView.swift in Sources */,
 				D0A707812C8C7181007E9856 /* savannahApp.swift in Sources */,
+				D027A5AD2C9228BD005E87BB /* ThreadsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -419,11 +482,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = savannah/savannah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"savannah/Preview Content\"";
+				DEVELOPMENT_TEAM = M3VYM4P282;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = savannah/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -434,7 +500,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = quantus17.savannah;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.quantus17.savannah;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -447,11 +513,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = savannah/savannah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"savannah/Preview Content\"";
+				DEVELOPMENT_TEAM = M3VYM4P282;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = savannah/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -462,7 +531,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = quantus17.savannah;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.quantus17.savannah;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -582,6 +651,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D023214B2C8DF1F700A2DA5C /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase-community/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D023214C2C8DF1F700A2DA5C /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D023214B2C8DF1F700A2DA5C /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		D023214E2C8DF1F700A2DA5C /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D023214B2C8DF1F700A2DA5C /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D0A707752C8C7181007E9856 /* Project object */;
 }
