@@ -62,6 +62,10 @@ struct AgentView: View {
     @State private var errorMessage = ""
     @State private var currentConversationId: Int?
     @State private var currentQandaId: Int = 0
+    @State private var selectedImage: UIImage?
+    @State private var imageUrl: String?
+    @State private var isImagePickerPresented = false
+    @State private var thumbnailImage: UIImage?
 
     let agent = Agent(
         agentNo: 3,
@@ -106,19 +110,34 @@ struct AgentView: View {
                         
                         // Chat Conversation
                         ForEach(conversation) { message in
-                            HStack {
+                            VStack(alignment: message.isUser ? .trailing : .leading, spacing: 8) {
                                 if message.isUser {
-                                    Spacer()
-                                }
-                                Text(message.content ?? "")
-                                    .foregroundColor(.customDark)
-                                    .padding()
-                                    .background(message.isUser ? Color.customNavy.opacity(0.05) : Color.customTeal.opacity(0.05))
-                                    .cornerRadius(12)
-                                if !message.isUser {
-                                    Spacer()
+                                    if let imageUrl = extractImageUrl(from: message.content ?? "") {
+                                        AsyncImage(url: URL(string: imageUrl)) { image in
+                                            image
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(maxWidth: 200, maxHeight: 200)
+                                                .cornerRadius(12)
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
+                                    }
+                                    
+                                    Text(extractTextContent(from: message.content ?? ""))
+                                        .foregroundColor(.customDark)
+                                        .padding()
+                                        .background(Color.customNavy.opacity(0.05))
+                                        .cornerRadius(12)
+                                } else {
+                                    Text(message.content ?? "")
+                                        .foregroundColor(.customDark)
+                                        .padding()
+                                        .background(Color.customTeal.opacity(0.05))
+                                        .cornerRadius(12)
                                 }
                             }
+                            .frame(maxWidth: .infinity, alignment: message.isUser ? .trailing : .leading)
                             .id(message.id)
                         }
 
@@ -143,12 +162,31 @@ struct AgentView: View {
                                             .padding(.top, 16)
                                     }
                                     
+                                    if let thumbnail = thumbnailImage {
+                                        ZStack(alignment: .topLeading) {
+                                            Image(uiImage: thumbnail)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 60, height: 60)
+                                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                            
+                                            Button(action: removeImage) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(.customTeal)
+                                                    .background(Color.white)
+                                                    .clipShape(Circle())
+                                            }
+                                            .offset(x: -6, y: -6)
+                                        }
+                                        .offset(x: 8, y: -30)
+                                    }
+                                    
                                     HStack {
                                         Button(action: {
-                                            // Add image upload action here
+                                            presentImagePicker()
                                         }) {
-                                            Image(systemName: "photo")
-                                                .foregroundColor(.customTeal)
+                                            Image(systemName: thumbnailImage != nil ? "photo.fill" : "photo")
+                                                .foregroundColor(thumbnailImage != nil ? .customTeal : .customGray)
                                                 .font(.system(size: 20))
                                         }
                                         
@@ -198,13 +236,33 @@ struct AgentView: View {
                                             .stroke(Color.customTeal, lineWidth: 1)
                                     )
                             )
+                            .focused($isInputFocused)
+
+                        if let thumbnail = thumbnailImage {
+                            ZStack(alignment: .topLeading) {
+                                Image(uiImage: thumbnail)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                
+                                Button(action: removeImage) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.customTeal)
+                                        .background(Color.white)
+                                        .clipShape(Circle())
+                                }
+                                .offset(x: -6, y: -6)
+                            }
+                            .offset(x: 8, y: -20)
+                        }
                         
                         HStack {
                             Button(action: {
-                                // Add image upload action here
+                                presentImagePicker()
                             }) {
-                                Image(systemName: "photo")
-                                    .foregroundColor(.customTeal)
+                                Image(systemName: thumbnailImage != nil ? "photo.fill" : "photo")
+                                    .foregroundColor(thumbnailImage != nil ? .customTeal : .customGray)
                                     .font(.system(size: 20))
                             }
                             
@@ -216,6 +274,7 @@ struct AgentView: View {
                                     .font(.system(size: 24))
                             }
                         }
+                        .frame(maxWidth: .infinity)
                         .padding(.horizontal, 16)
                     }
                 }
@@ -232,10 +291,22 @@ struct AgentView: View {
         } message: {
             Text(errorMessage)
         }
+        .sheet(isPresented: $isImagePickerPresented) {
+            ImagePicker(selectedImage: $selectedImage)
+        }
+        .onChange(of: selectedImage) { oldImage, newImage in
+            if let image = newImage {
+                if let optimizedImage = optimizeImage(image) {
+                    uploadImage(optimizedImage)
+                } else {
+                    print("Failed to optimize image")
+                }
+            }
+        }
     }
     
     func handleSubmit() {
-        guard !input.isEmpty else { return }
+        guard !input.isEmpty || imageUrl != nil else { return }
         
         Task {
             do {
@@ -254,6 +325,13 @@ struct AgentView: View {
                 
                 currentQandaId += 1
                 
+                let userContent: String
+                if let imageUrl = imageUrl {
+                    userContent = "\(input) [Image: \(imageUrl)]"
+                } else {
+                    userContent = input
+                }
+                
                 // Save user's question
                 try await SupabaseManager.shared.saveMessage(
                     userId: userId,
@@ -261,12 +339,12 @@ struct AgentView: View {
                     conversationId: conversationId,
                     qandaId: currentQandaId,
                     role: "user",
-                    content: input,
-                    part: 1  // Added part parameter
+                    content: userContent,
+                    part: 1
                 )
                 
                 // Add user's question to the conversation
-                let userMessage = Message(id: UUID(), userId: authViewModel.userId, agentId: agent.agentNo, conversationId: conversationId, urlId: nil, qandaId: currentQandaId, part: 1, role: "user", content: input, content2: nil, createdAt: Date())
+                let userMessage = Message(id: UUID(), userId: authViewModel.userId, agentId: agent.agentNo, conversationId: conversationId, urlId: nil, qandaId: currentQandaId, part: 1, role: "user", content: userContent, content2: nil, createdAt: Date())
                 conversation.append(userMessage)
                 
                 // Simulate AI response (replace with actual AI integration later)
@@ -280,15 +358,17 @@ struct AgentView: View {
                     qandaId: currentQandaId,
                     role: "assistant",
                     content: aiResponse,
-                    part: 1  // Added part parameter
+                    part: 1
                 )
                 
                 // Add AI's response to the conversation
                 let aiMessage = Message(id: UUID(), userId: nil, agentId: agent.agentNo, conversationId: conversationId, urlId: nil, qandaId: currentQandaId, part: 1, role: "assistant", content: aiResponse, content2: nil, createdAt: Date())
                 conversation.append(aiMessage)
                 
-                // Clear input field
+                // Clear input field, image URL, and thumbnail
                 input = ""
+                imageUrl = nil
+                thumbnailImage = nil
                 
                 // Scroll to the bottom
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -331,6 +411,96 @@ struct AgentView: View {
                 showError = true
                 errorMessage = "Failed to load conversation: \(error.localizedDescription)"
             }
+        }
+    }
+}
+
+extension AgentView {
+    private func presentImagePicker() {
+        isImagePickerPresented = true
+    }
+
+    private func optimizeImage(_ image: UIImage) -> UIImage? {
+        let targetSize = CGSize(width: 800, height: 800)
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        return renderer.image { (context) in
+            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+    }
+    
+    private func uploadImage(_ image: UIImage) {
+        Task {
+            do {
+                guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+                    print("Failed to convert image to data")
+                    return
+                }
+                
+                let url = try await GoogleCloudStorageManager.shared.uploadImage(imageData)
+                await MainActor.run {
+                    self.imageUrl = url
+                    self.thumbnailImage = image // Set the thumbnail image
+                    print("Image uploaded successfully. URL: \(url)")
+                }
+            } catch {
+                await MainActor.run {
+                    print("Failed to upload image: \(error.localizedDescription)")
+                    self.showError = true
+                    self.errorMessage = "Failed to upload image. Please try again."
+                }
+            }
+        }
+    }
+    
+    private func extractImageUrl(from content: String) -> String? {
+        let pattern = "\\[Image: (.*?)\\]"
+        if let range = content.range(of: pattern, options: .regularExpression) {
+            let extracted = content[range]
+            let url = String(extracted.dropFirst(8).dropLast(1))
+            return url
+        }
+        return nil
+    }
+    
+    private func extractTextContent(from content: String) -> String {
+        return content.replacingOccurrences(of: "\\[Image: .*?\\]", with: "", options: .regularExpression)
+    }
+    
+    private func removeImage() {
+        self.imageUrl = nil
+        self.thumbnailImage = nil
+    }
+}
+
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var selectedImage: UIImage?
+    @Environment(\.presentationMode) private var presentationMode
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = .photoLibrary
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.selectedImage = image
+            }
+            parent.presentationMode.wrappedValue.dismiss()
         }
     }
 }
