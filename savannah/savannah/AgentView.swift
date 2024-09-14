@@ -7,49 +7,7 @@
  
 import SwiftUI
 import Supabase  // Add this import
-
-struct Agent {
-    let agentNo: Int
-    let name: String
-    let location: String
-    let title: String
-    let imageSrc: String
-    let background: String
-    let summaryDesc: String
-    let questions: [String]
-}
-
-struct Message: Identifiable, Codable {
-    let id: UUID
-    let userId: UUID?
-    let agentId: Int?
-    let conversationId: Int?
-    let urlId: String?
-    let qandaId: Int?
-    let part: Int?
-    let role: String?
-    let content: String?
-    let content2: String?
-    let createdAt: Date?
-    
-    var isUser: Bool {
-        return role == "user"
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case userId = "user_id"
-        case agentId = "agent_id"
-        case conversationId = "conversation_id"
-        case urlId = "url_id"
-        case qandaId = "qanda_id"
-        case part
-        case role
-        case content
-        case content2
-        case createdAt = "created_at"
-    }
-}
+import Combine
 
 struct AgentView: View {
     let conversationId: Int?
@@ -66,15 +24,17 @@ struct AgentView: View {
     @State private var imageUrl: String?
     @State private var isImagePickerPresented = false
     @State private var thumbnailImage: UIImage?
-
+    @State private var cancellables: Set<AnyCancellable> = []
+    
     let agent = Agent(
+        id: UUID(),
         agentNo: 3,
         name: "Sophia Laurent",
         location: "Paris",
-        title: "Interior Designer",
-        imageSrc: "https://storage.googleapis.com/subgroup-images/77b4c6eb-2df5-42a5-8202-a57ceb0ec2b1.jpg?timestamp=1715842580622",
-        background: "Sophia Laurent, 32, a distinguished interior designer based in Paris. With a masters degree from École Camondo, she has an exquisite blend of classical European design education and a bold, avant-garde approach.",
+        title: "Interior Designer",        
+        description: "Sophia Laurent, 32, a distinguished interior designer based in Paris. With a masters degree from École Camondo, she has an exquisite blend of classical European design education and a bold, avant-garde approach.",
         summaryDesc: "Paris-based interior designer, blending classical European education from École Camondo with avant-garde design.",
+        imageUrl: "https://storage.googleapis.com/subgroup-images/77b4c6eb-2df5-42a5-8202-a57ceb0ec2b1.jpg?timestamp=1715842580622",
         questions: []  // Removed the questions
     )
     
@@ -90,7 +50,7 @@ struct AgentView: View {
                     VStack(spacing: 24) {
                         // Agent Info
                         HStack(alignment: .center, spacing: 16) {
-                            AsyncImage(url: URL(string: agent.imageSrc)) { image in
+                            AsyncImage(url: URL(string: agent.imageUrl)) { image in
                                 image.resizable()
                             } placeholder: {
                                 Color.customGold
@@ -112,7 +72,7 @@ struct AgentView: View {
                         ForEach(conversation) { message in
                             VStack(alignment: message.isUser ? .trailing : .leading, spacing: 8) {
                                 if message.isUser {
-                                    if let imageUrl = extractImageUrl(from: message.content ?? "") {
+                                    if message.isImage, let imageUrl = message.content {
                                         AsyncImage(url: URL(string: imageUrl)) { image in
                                             image
                                                 .resizable()
@@ -122,19 +82,20 @@ struct AgentView: View {
                                         } placeholder: {
                                             ProgressView()
                                         }
+                                    } else {
+                                        Text(message.content ?? "")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.customDark)
+                                            .padding()
+                                            .background(Color.customNavy.opacity(0.05))
+                                            .cornerRadius(12)
                                     }
-                                    
-                                    Text(extractTextContent(from: message.content ?? ""))
-                                        .foregroundColor(.customDark)
-                                        .padding()
-                                        .background(Color.customNavy.opacity(0.05))
-                                        .cornerRadius(12)
                                 } else {
-                                    Text(message.content ?? "")
-                                        .foregroundColor(.customDark)
+                                    CustomMarkdownRenderer(content: message.content ?? "")
                                         .padding()
                                         .background(Color.customTeal.opacity(0.05))
                                         .cornerRadius(12)
+                                        .frame(maxWidth: 300, alignment: .leading)
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: message.isUser ? .trailing : .leading)
@@ -143,70 +104,16 @@ struct AgentView: View {
 
                         // Initial Input Field (only shown when conversation is empty)
                         if conversation.isEmpty {
-                            VStack(spacing: 24) {
-                                ZStack(alignment: .topLeading) {
-                                    TextEditor(text: $input)
-                                        .frame(height: 120)
-                                        .padding(0)
-                                        .background(Color.clear)
-                                        .focused($isInputFocused)
-
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.customTeal, lineWidth: 2)
-                                        .frame(height: 120)
-
-                                    if input.isEmpty && !isInputFocused {
-                                        Text("Ask Sophia interior...")
-                                            .foregroundColor(.customGray.opacity(0.6))
-                                            .padding(.horizontal, 16)
-                                            .padding(.top, 16)
-                                    }
-                                    
-                                    if let thumbnail = thumbnailImage {
-                                        ZStack(alignment: .topLeading) {
-                                            Image(uiImage: thumbnail)
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: 60, height: 60)
-                                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                            
-                                            Button(action: removeImage) {
-                                                Image(systemName: "xmark.circle.fill")
-                                                    .foregroundColor(.customTeal)
-                                                    .background(Color.white)
-                                                    .clipShape(Circle())
-                                            }
-                                            .offset(x: -6, y: -6)
-                                        }
-                                        .offset(x: 8, y: -30)
-                                    }
-                                    
-                                    HStack {
-                                        Button(action: {
-                                            presentImagePicker()
-                                        }) {
-                                            Image(systemName: thumbnailImage != nil ? "photo.fill" : "photo")
-                                                .foregroundColor(thumbnailImage != nil ? .customTeal : .customGray)
-                                                .font(.system(size: 20))
-                                        }
-                                        
-                                        Spacer()
-                                        
-                                        Button(action: handleSubmit) {
-                                            Image(systemName: "arrow.up")
-                                                .foregroundColor(.customWhite)
-                                                .font(.system(size: 20))
-                                                .frame(width: 40, height: 40)
-                                                .background(Color.customTeal)
-                                                .clipShape(Circle())
-                                        }
-                                    }
-                                    .padding(8)
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                                }
-                                .frame(height: 120)
-                            }
-                            .padding(.top, 32)
+                            InitialInputView(
+                                input: $input,
+                                imageUrl: $imageUrl,
+                                thumbnailImage: $thumbnailImage,
+                                agent: agent,
+                                isInputFocused: $isInputFocused,
+                                handleSubmit: handleSubmit,
+                                presentImagePicker: presentImagePicker,
+                                removeImage: removeImage
+                            )
                         }
                     }
                     .padding()
@@ -258,9 +165,7 @@ struct AgentView: View {
                         }
                         
                         HStack {
-                            Button(action: {
-                                presentImagePicker()
-                            }) {
+                            Button(action: presentImagePicker) {
                                 Image(systemName: thumbnailImage != nil ? "photo.fill" : "photo")
                                     .foregroundColor(thumbnailImage != nil ? .customTeal : .customGray)
                                     .font(.system(size: 20))
@@ -281,6 +186,8 @@ struct AgentView: View {
                 .padding()
                 .background(Color.customWhite)
             }
+
+            
         }
         .background(Color.customWhite)
         .onTapGesture {
@@ -306,8 +213,6 @@ struct AgentView: View {
     }
     
     func handleSubmit() {
-        guard !input.isEmpty || imageUrl != nil else { return }
-        
         Task {
             do {
                 guard let userId = authViewModel.userId else {
@@ -325,32 +230,81 @@ struct AgentView: View {
                 
                 currentQandaId += 1
                 
-                let userContent: String
-                if let imageUrl = imageUrl {
-                    userContent = "\(input) [Image: \(imageUrl)]"
-                } else {
-                    userContent = input
+                // Add user's text message to conversation immediately
+                if !input.isEmpty {
+                    let userMessage = Message(id: UUID(), userId: authViewModel.userId, agentId: agent.agentNo, conversationId: conversationId, urlId: nil, qandaId: currentQandaId, part: 1, role: "user", content: input, content2: nil, createdAt: Date())
+                    await MainActor.run {
+                        conversation.append(userMessage)
+                    }
                 }
                 
-                // Save user's question
-                try await SupabaseManager.shared.saveMessage(
-                    userId: userId,
-                    agentId: agent.agentNo,
-                    conversationId: conversationId,
-                    qandaId: currentQandaId,
-                    role: "user",
-                    content: userContent,
-                    part: 1
-                )
+                // Add user's image message to conversation immediately
+                if let imageUrl = imageUrl {
+                    let imageMessage = Message(id: UUID(), userId: authViewModel.userId, agentId: agent.agentNo, conversationId: conversationId, urlId: nil, qandaId: currentQandaId, part: 1, role: "user-image", content: imageUrl, content2: nil, createdAt: Date())
+                    await MainActor.run {
+                        conversation.append(imageMessage)
+                    }
+                }
                 
-                // Add user's question to the conversation
-                let userMessage = Message(id: UUID(), userId: authViewModel.userId, agentId: agent.agentNo, conversationId: conversationId, urlId: nil, qandaId: currentQandaId, part: 1, role: "user", content: userContent, content2: nil, createdAt: Date())
-                conversation.append(userMessage)
+                // Prepare conversation for OpenAI
+                let messages = prepareConversationForOpenAI()
                 
-                // Simulate AI response (replace with actual AI integration later)
-                let aiResponse = "Thank you for your question. Here's a simulated response to: \(input)"
+                // Create a placeholder message for the AI response
+                let aiMessageId = UUID()
+                let aiMessage = Message(id: aiMessageId, userId: nil, agentId: agent.agentNo, conversationId: conversationId, urlId: nil, qandaId: currentQandaId, part: 1, role: "assistant", content: "", content2: nil, createdAt: Date())
                 
-                // Save AI's response
+                await MainActor.run {
+                    conversation.append(aiMessage)
+                    
+                    // Scroll to the bottom
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation {
+                            scrollProxy?.scrollTo(aiMessageId, anchor: .bottom)
+                        }
+                    }
+                }
+                
+                // Send request to OpenAI and update AI response
+                var aiResponse = ""
+                do {
+                    let stream = try await OpenAIManager.shared.sendStreamRequest(messages: messages)
+                    for try await streamContent in stream {
+                        aiResponse += streamContent
+                        await MainActor.run {
+                            if let index = conversation.firstIndex(where: { $0.id == aiMessageId }) {
+                                conversation[index].content = aiResponse
+                            }
+                        }
+                    }
+                } catch {
+                    throw NSError(domain: "OpenAIError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to get AI response: \(error.localizedDescription)"])
+                }
+                
+                // Save messages to database
+                if !input.isEmpty {
+                    try await SupabaseManager.shared.saveMessage(
+                        userId: userId,
+                        agentId: agent.agentNo,
+                        conversationId: conversationId,
+                        qandaId: currentQandaId,
+                        role: "user",
+                        content: input,
+                        part: 1
+                    )
+                }
+                
+                if let imageUrl = imageUrl {
+                    try await SupabaseManager.shared.saveMessage(
+                        userId: userId,
+                        agentId: agent.agentNo,
+                        conversationId: conversationId,
+                        qandaId: currentQandaId,
+                        role: "user-image",
+                        content: imageUrl,
+                        part: 1
+                    )
+                }
+                
                 try await SupabaseManager.shared.saveMessage(
                     userId: userId,
                     agentId: agent.agentNo,
@@ -361,25 +315,19 @@ struct AgentView: View {
                     part: 1
                 )
                 
-                // Add AI's response to the conversation
-                let aiMessage = Message(id: UUID(), userId: nil, agentId: agent.agentNo, conversationId: conversationId, urlId: nil, qandaId: currentQandaId, part: 1, role: "assistant", content: aiResponse, content2: nil, createdAt: Date())
-                conversation.append(aiMessage)
-                
                 // Clear input field, image URL, and thumbnail
-                input = ""
-                imageUrl = nil
-                thumbnailImage = nil
-                
-                // Scroll to the bottom
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    withAnimation {
-                        scrollProxy?.scrollTo(aiMessage.id, anchor: .bottom)
-                    }
+                await MainActor.run {
+                    input = ""
+                    imageUrl = nil
+                    thumbnailImage = nil
                 }
+                
             } catch {
                 print("Error handling submit: \(error.localizedDescription)")
-                showError = true
-                errorMessage = "Failed to send message. Please try again."
+                await MainActor.run {
+                    showError = true
+                    errorMessage = "Failed to send message. Please try again."
+                }
             }
         }
     }
@@ -413,6 +361,8 @@ struct AgentView: View {
             }
         }
     }
+
+    
 }
 
 extension AgentView {
@@ -470,6 +420,48 @@ extension AgentView {
         self.imageUrl = nil
         self.thumbnailImage = nil
     }
+    
+    private func prepareConversationForOpenAI() -> [ChatGPTMessage] {
+        var messages: [ChatGPTMessage] = []
+        
+        // Add system message with agent's background
+        messages.append(ChatGPTMessage(role: "system", content: .text("\(agent.name), \(agent.description)")))
+        
+        // Add conversation history
+        for (index, message) in conversation.enumerated() {
+            switch message.role {
+            case "user":
+                if let nextMessage = conversation.indices.contains(index + 1) ? conversation[index + 1] : nil,
+                   nextMessage.role == "user-image" {
+                    // If the next message is an image, combine text and image
+                    let imageUrl = nextMessage.content ?? ""
+                    let content: [ChatGPTMessage.ContentPart] = [
+                        ChatGPTMessage.ContentPart(type: "text", text: message.content, image_url: nil),
+                        ChatGPTMessage.ContentPart(type: "image_url", text: nil, image_url: ChatGPTMessage.ContentPart.ImageURL(url: imageUrl))
+                    ]
+                    messages.append(ChatGPTMessage(role: "user", content: .multipart(content)))
+                } else {
+                    // If there's no image, just add the text
+                    messages.append(ChatGPTMessage(role: "user", content: .text(message.content ?? "")))
+                }
+            case "user-image":
+                // Skip this case as we handle it in the "user" case
+                break
+            case "assistant":
+                messages.append(ChatGPTMessage(role: "assistant", content: .text(message.content ?? "")))
+            default:
+                break // Ignore any other roles
+            }
+        }
+        
+        // Print the prepared messages for debugging
+        print("Prepared messages for OpenAI:")
+        for (index, message) in messages.enumerated() {
+            print("[\(index)] Role: \(message.role), Content: \(message.content)")
+        }
+        
+        return messages
+    }
 }
 
 struct ImagePicker: UIViewControllerRepresentable {
@@ -518,4 +510,3 @@ struct AgentView_Previews: PreviewProvider {
         return authViewModel
     }
 }
-
