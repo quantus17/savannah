@@ -41,33 +41,6 @@ struct ThreadsView: View {
         }
     }
 
-    @ViewBuilder
-    private var contentView: some View {
-        if isLoading {
-            Text("Loading...")
-        } else if let error = errorMessage {
-            Text(error)
-                .foregroundColor(.red)
-        } else if conversations.isEmpty {
-            Text("No conversations yet")
-                .foregroundColor(.customGray)
-        } else {
-            conversationsList
-        }
-    }
-
-    private var conversationsList: some View {
-        List {
-            ForEach(conversations) { conversation in
-                NavigationLink {
-                    AgentView()
-                } label: {
-                    ConversationRow(conversation: conversation)
-                }
-            }
-        }
-    }
-
     private func loadConversations() {
         isLoading = true
         errorMessage = nil

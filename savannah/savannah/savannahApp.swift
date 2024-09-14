@@ -40,7 +40,7 @@ struct AppContentView: View {
         }
         .onAppear {
             // set below code commented to go production
-            // authViewModel.setAuthenticationForTesting(true)
+            authViewModel.setAuthenticationForTesting(true)
             print("Initial auth state: \(authViewModel.isAuthenticated)")
         }
     }

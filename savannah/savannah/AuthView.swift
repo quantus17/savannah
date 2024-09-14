@@ -103,7 +103,7 @@ class AuthViewModel: ObservableObject {
     
     // Comment out the entire temporary method
     
-    /*func setAuthenticationForTesting(_ value: Bool) {
+   func setAuthenticationForTesting(_ value: Bool) {
         DispatchQueue.main.async {
             self.isAuthenticated = value
             if value {
@@ -116,7 +116,8 @@ class AuthViewModel: ObservableObject {
             print("Authentication set to: \(value)")
             print("Test User ID set to: \(self.userId?.uuidString ?? "nil")")
         }
-    }*/
+    }
+    
     
 }
 

@@ -96,15 +96,20 @@ class SupabaseManager {
         print("Raw Supabase response: \(String(describing: response.data))")
         
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
         
-        let allMessages = try decoder.decode([Conversation].self, from: response.data)
-        
-        // Group by conversation_id and take the most recent message for each
-        let groupedConversations = Dictionary(grouping: allMessages, by: { $0.conversationId })
-        let uniqueConversations = groupedConversations.values.compactMap { $0.first }
-        
-        return uniqueConversations.sorted(by: { $0.createdAt > $1.createdAt })
+        do {
+            let allMessages = try decoder.decode([Conversation].self, from: response.data)
+            
+            // Group by conversation_id and take the most recent message for each
+            let groupedConversations = Dictionary(grouping: allMessages, by: { $0.conversationId })
+            let uniqueConversations = groupedConversations.values.compactMap { $0.first }
+            
+            return uniqueConversations.sorted(by: { $0.createdAt > $1.createdAt })
+        } catch {
+            print("Decoding error: \(error)")
+            // ... (rest of the error handling)
+            throw error
+        }
     }
     
     func fetchMessages(for conversationId: Int) async throws -> [Message] {
