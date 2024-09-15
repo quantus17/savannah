@@ -71,9 +71,18 @@ struct HomePage: View {
 
 struct HomePage_Previews: PreviewProvider {
     static var previews: some View {
-        HomePage(authViewModel: AuthViewModel(supabase: SupabaseClient(
-            supabaseURL: Config.supabaseURL,
-            supabaseKey: Config.supabaseKey
-        )))
+        Group {
+            if let supabaseURLString = ProcessInfo.processInfo.environment["SUPABASE_URL"],
+               let supabaseURL = URL(string: supabaseURLString),
+               let supabaseKey = ProcessInfo.processInfo.environment["SUPABASE_KEY"] {
+                let supabaseClient = SupabaseClient(
+                    supabaseURL: supabaseURL,
+                    supabaseKey: supabaseKey
+                )
+                HomePage(authViewModel: AuthViewModel(supabase: supabaseClient))
+            } else {
+                Text("Supabase environment variables are not set properly")
+            }
+        }
     }
 }

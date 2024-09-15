@@ -17,7 +17,6 @@
 		D027A5B32C9471F8005E87BB /* OpenAIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027A5B22C9471F8005E87BB /* OpenAIManager.swift */; };
 		D027A5B52C9490AA005E87BB /* CustomMarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027A5B42C9490AA005E87BB /* CustomMarkdownRenderer.swift */; };
 		D027A5BB2C959C3E005E87BB /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027A5BA2C959C3E005E87BB /* Models.swift */; };
-		D027A5BF2C963F26005E87BB /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027A5BE2C963F26005E87BB /* Config.swift */; };
 		D027BFE72C8F5EB800AA4DFB /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027BFE62C8F5EB800AA4DFB /* DiscoverView.swift */; };
 		D027BFE92C8F5EC600AA4DFB /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027BFE82C8F5EC600AA4DFB /* AccountView.swift */; };
 		D0879FDF2C91B1DC008B9AFD /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0879FDE2C91B1DC008B9AFD /* SupabaseManager.swift */; };
@@ -62,7 +61,6 @@
 		D027A5B22C9471F8005E87BB /* OpenAIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIManager.swift; sourceTree = "<group>"; };
 		D027A5B42C9490AA005E87BB /* CustomMarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMarkdownRenderer.swift; sourceTree = "<group>"; };
 		D027A5BA2C959C3E005E87BB /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
-		D027A5BE2C963F26005E87BB /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		D027BFE62C8F5EB800AA4DFB /* DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
 		D027BFE82C8F5EC600AA4DFB /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
 		D0879FDE2C91B1DC008B9AFD /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
@@ -154,7 +152,6 @@
 				D027A5B22C9471F8005E87BB /* OpenAIManager.swift */,
 				D027A5B42C9490AA005E87BB /* CustomMarkdownRenderer.swift */,
 				D027A5BA2C959C3E005E87BB /* Models.swift */,
-				D027A5BE2C963F26005E87BB /* Config.swift */,
 				D0A707862C8C7182007E9856 /* Preview Content */,
 			);
 			path = savannah;
@@ -335,7 +332,6 @@
 				D0A707812C8C7181007E9856 /* savannahApp.swift in Sources */,
 				D027A5B52C9490AA005E87BB /* CustomMarkdownRenderer.swift in Sources */,
 				D027A5AF2C92FA06005E87BB /* GoogleCloudStorageManager.swift in Sources */,
-				D027A5BF2C963F26005E87BB /* Config.swift in Sources */,
 				D027A5B12C9426C7005E87BB /* InitialInputView.swift in Sources */,
 				D027A5AD2C9228BD005E87BB /* ThreadsView.swift in Sources */,
 			);
@@ -500,7 +496,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = savannah/savannah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_ASSET_PATHS = "\"savannah/Preview Content\"";
 				DEVELOPMENT_TEAM = M3VYM4P282;
 				ENABLE_PREVIEWS = YES;
@@ -531,7 +527,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = savannah/savannah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_ASSET_PATHS = "\"savannah/Preview Content\"";
 				DEVELOPMENT_TEAM = M3VYM4P282;
 				ENABLE_PREVIEWS = YES;

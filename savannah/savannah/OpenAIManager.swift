@@ -15,10 +15,15 @@ enum OpenAIError: Error {
 
 class OpenAIManager {
     static let shared = OpenAIManager()
-    private init() {}
-    
-    private let apiKey = Config.openAIAPIKey
+    private let apiKey: String
     private let baseURL = "https://api.openai.com/v1/chat/completions"
+    
+    private init() {
+        guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
+            fatalError("OpenAI API key environment variable is not set")
+        }
+        self.apiKey = apiKey
+    }
     
     func sendStreamRequest(messages: [ChatGPTMessage]) async throws -> AsyncThrowingStream<String, Error> {
         guard let url = URL(string: baseURL) else {

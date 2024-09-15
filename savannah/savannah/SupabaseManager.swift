@@ -13,9 +13,15 @@ class SupabaseManager {
     private let client: SupabaseClient
     
     private init() {
+        guard let supabaseURLString = ProcessInfo.processInfo.environment["SUPABASE_URL"],
+              let supabaseURL = URL(string: supabaseURLString),
+              let supabaseKey = ProcessInfo.processInfo.environment["SUPABASE_KEY"] else {
+            fatalError("Supabase environment variables are not set properly")
+        }
+        
         self.client = SupabaseClient(
-            supabaseURL: Config.supabaseURL,
-            supabaseKey: Config.supabaseKey
+            supabaseURL: supabaseURL,
+            supabaseKey: supabaseKey
         )
     }
     
@@ -88,7 +94,14 @@ class SupabaseManager {
     func fetchConversations(for userId: UUID) async throws -> [Conversation] {
         let response = try await client
             .from("conversations")
-            .select("id, conversation_id, user_id, agent_id, content, created_at")
+            .select("""
+                id,
+                conversation_id,
+                user_id,
+                agent_id,
+                content,
+                created_at
+            """)
             .eq("user_id", value: userId.uuidString)
             .order("created_at", ascending: false)
             .execute()
@@ -96,28 +109,34 @@ class SupabaseManager {
         print("Raw Supabase response: \(String(describing: response.data))")
         
         let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
         
         do {
             let allMessages = try decoder.decode([Conversation].self, from: response.data)
             
-            // Group by conversation_id and take the most recent message for each
-            let groupedConversations = Dictionary(grouping: allMessages, by: { $0.conversationId })
-            let uniqueConversations = groupedConversations.values.compactMap { $0.first }
+            // Group by conversation_id and agent_id to ensure unique conversations per agent
+            let groupedConversations = Dictionary(grouping: allMessages) { 
+                "\($0.conversationId)-\($0.agentId ?? 0)"
+            }
+            
+            // Take the most recent message for each unique conversation
+            let uniqueConversations = groupedConversations.values.compactMap { $0.max(by: { $0.createdAt < $1.createdAt }) }
             
             return uniqueConversations.sorted(by: { $0.createdAt > $1.createdAt })
         } catch {
             print("Decoding error: \(error)")
-            // ... (rest of the error handling)
             throw error
         }
     }
     
-    func fetchMessages(for conversationId: Int) async throws -> [Message] {
-        print("Fetching messages for conversation ID: \(conversationId)")
+    func fetchMessages(for conversationId: Int, agentId: Int, userId: UUID) async throws -> [Message] {
+        print("Fetching messages for conversation ID: \(conversationId), agent ID: \(agentId), user ID: \(userId)")
         let response = try await client
             .from("conversations")
             .select("*")
             .eq("conversation_id", value: conversationId)
+            .eq("agent_id", value: agentId)
+            .eq("user_id", value: userId.uuidString)
             .order("created_at")
             .execute()
         

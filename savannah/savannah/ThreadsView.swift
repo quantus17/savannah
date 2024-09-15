@@ -36,9 +36,6 @@ struct ThreadsView: View {
             .navigationTitle("Threads")
             .onAppear(perform: loadConversations)
         }
-        .onAppear {
-            print("ThreadsView appeared, User ID: \(authViewModel.userId?.uuidString ?? "nil")")
-        }
     }
 
     private func loadConversations() {
@@ -47,7 +44,6 @@ struct ThreadsView: View {
 
         Task {
             do {
-                print("Loading conversations, User ID: \(authViewModel.userId?.uuidString ?? "nil")")
                 guard let userId = authViewModel.userId else {
                     throw NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "User ID is not available"])
                 }
@@ -111,7 +107,6 @@ struct ConversationRow: View {
                     .foregroundColor(.gray)
             }
         }
-        .padding(.vertical, 8)
     }
     
     private func formattedDate(from dateString: String) -> String {

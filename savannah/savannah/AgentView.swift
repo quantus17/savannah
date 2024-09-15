@@ -28,16 +28,23 @@ struct AgentView: View {
     @State private var cancellables: Set<AnyCancellable> = []
     
     @State private var agent: Agent?
+    @State private var isLoading = true
+    @Environment(\.presentationMode) var presentationMode
+    var isFromDiscover: Bool
     
-    init(conversationId: Int? = nil, agentNo: Int) {
+    init(conversationId: Int? = nil, agentNo: Int, isFromDiscover: Bool = false) {
         self.conversationId = conversationId
         self.agentNo = agentNo
+        self.isFromDiscover = isFromDiscover
         self._currentConversationId = State(initialValue: conversationId)
+        print("AgentView initialized with agentNo: \(agentNo)")
     }
 
     var body: some View {
         Group {
-            if let agent = agent {
+            if isLoading {
+                ProgressView("Loading agent data...")
+            } else if let agent = agent {
                 ZStack(alignment: .bottom) {
                     ScrollViewReader { proxy in
                         ScrollView {
@@ -204,12 +211,31 @@ struct AgentView: View {
                         }
                     }
                 }
+                // Only show custom back button if opened from DiscoverView
+                .if(isFromDiscover) { view in
+                    view.navigationBarItems(leading: Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                    })
+                }
             } else {
                 Text("Agent not found")
             }
         }
         .onAppear {
-            agent = AgentList.getAgent(by: agentNo)
+            loadAgentDataIfNeeded()
+        }
+    }
+    
+    private func loadAgentDataIfNeeded() {
+        guard agent == nil else { return }
+        print("AgentView appeared for agentNo: \(agentNo)")
+        isLoading = true
+        DispatchQueue.main.async {
+            self.agent = AgentList.getAgent(by: self.agentNo)
+            self.isLoading = false
+            print("Agent data loaded: \(self.agent?.name ?? "Not found")")
         }
     }
     
@@ -343,7 +369,7 @@ struct AgentView: View {
                 }
                 print("User ID: \(userId)")
                 
-                let messages = try await SupabaseManager.shared.fetchMessages(for: id)
+                let messages = try await SupabaseManager.shared.fetchMessages(for: id, agentId: agentNo, userId: userId)
                 print("Fetched \(messages.count) messages")
                 currentConversationId = id
                 conversation = messages
@@ -509,5 +535,16 @@ struct AgentView_Previews: PreviewProvider {
         let authViewModel = AuthViewModel(supabase: mockSupabase)
         authViewModel.userId = UUID() // Provide a mock UUID
         return authViewModel
+    }
+}
+
+// Add this extension to support the .if modifier
+extension View {
+    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
     }
 }

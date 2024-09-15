@@ -10,24 +10,39 @@ class AuthViewModel: ObservableObject {
     @Published var showingEmailSentMessage = false
     @Published var userId: UUID?
     
-    let supabase: SupabaseClient
+    let supabaseClient: SupabaseClient?
     
-    init(supabase: SupabaseClient) {
-        self.supabase = supabase
+    init(supabase: SupabaseClient?) {
+        self.supabaseClient = supabase
+        print("AuthViewModel init - supabaseClient is \(supabase != nil ? "initialized" : "nil")")
         checkAuth()
+    }
+    
+    var isSupabaseInitialized: Bool {
+        return supabaseClient != nil
     }
     
     func checkAuth() {
         Task {
             do {
-                let session = try await supabase.auth.session
-                await MainActor.run {
-                    isAuthenticated = !session.accessToken.isEmpty
-                    userId = session.user.id
-                    email = session.user.email ?? ""
+                if let session = try await supabaseClient?.auth.session {
+                    await MainActor.run {
+                        isAuthenticated = !session.accessToken.isEmpty
+                        userId = session.user.id
+                        email = session.user.email ?? ""
+                    }
+                } else {
+                    await MainActor.run {
+                        isAuthenticated = false
+                        userId = nil
+                        email = ""
+                    }
                 }
             } catch {
                 print("Error checking auth: \(error)")
+                if (error as NSError).code == errSecItemNotFound {
+                    print("Keychain item not found. This is normal for first-time app launch or if keychain was reset.")
+                }
                 await MainActor.run {
                     isAuthenticated = false
                     userId = nil
@@ -43,7 +58,7 @@ class AuthViewModel: ObservableObject {
         showingEmailSentMessage = false
         Task {
             do {
-                try await supabase.auth.signInWithOTP(email: email)
+                try await supabaseClient?.auth.signInWithOTP(email: email)
                 await MainActor.run {
                     isLoading = false
                     showingEmailSentMessage = true
@@ -67,7 +82,7 @@ class AuthViewModel: ObservableObject {
         
         Task {
             do {
-                try await supabase.auth.setSession(accessToken: accessToken, refreshToken: refreshToken)
+                try await supabaseClient?.auth.setSession(accessToken: accessToken, refreshToken: refreshToken)
                 await MainActor.run {
                     isAuthenticated = true
                     checkAuth() // This will update the isAuthenticated state
@@ -85,12 +100,18 @@ class AuthViewModel: ObservableObject {
     func handleAuthCode(_ code: String) {
         Task {
             do {
-                let session = try await supabase.auth.exchangeCodeForSession(authCode: code)
-                await MainActor.run {
-                    self.isAuthenticated = true
-                    self.userId = session.user.id
-                    self.email = session.user.email ?? ""
-                    print("Authentication successful. User ID: \(self.userId?.uuidString ?? "nil")")
+                if let session = try await supabaseClient?.auth.exchangeCodeForSession(authCode: code) {
+                    await MainActor.run {
+                        self.isAuthenticated = true
+                        self.userId = session.user.id
+                        self.email = session.user.email ?? ""
+                        print("Authentication successful. User ID: \(self.userId?.uuidString ?? "nil")")
+                    }
+                } else {
+                    await MainActor.run {
+                        self.errorMessage = "Error authenticating: No session returned"
+                        print("Authentication error: No session returned")
+                    }
                 }
             } catch {
                 await MainActor.run {
@@ -103,7 +124,7 @@ class AuthViewModel: ObservableObject {
     
     // Comment out the entire temporary method
     
-   func setAuthenticationForTesting(_ value: Bool) {
+  /* func setAuthenticationForTesting(_ value: Bool) {
         DispatchQueue.main.async {
             self.isAuthenticated = value
             if value {
@@ -117,7 +138,7 @@ class AuthViewModel: ObservableObject {
             print("Test User ID set to: \(self.userId?.uuidString ?? "nil")")
         }
     }
-    
+    */
     
 }
 
@@ -250,9 +271,17 @@ extension URL {
 }
 
 #Preview {
-    AuthView()
-        .environmentObject(AuthViewModel(supabase: SupabaseClient(
-            supabaseURL: Config.supabaseURL,
-            supabaseKey: Config.supabaseKey
-        )))
+    guard let supabaseURLString = ProcessInfo.processInfo.environment["SUPABASE_URL"],
+          let supabaseURL = URL(string: supabaseURLString),
+          let supabaseKey = ProcessInfo.processInfo.environment["SUPABASE_KEY"] else {
+        return Text("Supabase environment variables are not set properly")
+    }
+    
+    let supabaseClient = SupabaseClient(
+        supabaseURL: supabaseURL,
+        supabaseKey: supabaseKey
+    )
+    
+    return AuthView()
+        .environmentObject(AuthViewModel(supabase: supabaseClient))
 }
